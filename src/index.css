@@ -67,6 +67,10 @@ body {
     color: #35858b;
 }
 
+.error-message {
+    font-size: 14px;
+}
+
 .btn-nice {
     color: #fff;
     background-color: #4fbdba;
@@ -74,7 +78,9 @@ body {
     transition: 0.5s;
 }
 
-.btn-nice:hover {
+.btn-nice:hover,
+.btn-nice:active,
+.btn-nice:focus {
     color: #fff;
     background-color: #35858b;
     border-color: #35858b;
@@ -89,8 +95,8 @@ body {
 
 .btn-nice-dark:hover {
     color: #fff;
-    background-color: #35858b;
-    border-color: #35858b;
+    background-color: #2d6f73;
+    border-color: #2d6f73;
 }
 
 .btn-outline-nice {
@@ -98,6 +104,20 @@ body {
     background-color: rgb(53, 133, 139, 0.1);
     border-color: #4fbdba;
     transition: 0.5s;
+}
+
+.btn-nice-danger {
+    color: #fff;
+    border-color: #bd4f4f;
+    background-color: #bd4f4f;
+}
+
+.btn-nice-danger:hover,
+.btn-nice-danger:active,
+.btn-nice-danger:focus {
+    color: #fff;
+    border-color: #8b3535;
+    background-color: #8b3535;
 }
 
 .btn-check:checked + .btn,
@@ -116,12 +136,12 @@ body {
     border-color: #4fbdba;
 }
 
-.product-list {
+.panel-card {
     padding: 32px 40px;
     border-radius: 16px;
 }
 
-.product-list hr {
+.panel-card hr {
     border-color: rgb(53, 133, 139, 0.5);
 }
 
@@ -144,8 +164,16 @@ input.search-input::placeholder {
     opacity: 45%;
 }
 
+.card-title {
+    height: 45px;
+}
+
 .card p {
     font-size: 14px;
+}
+
+img.img-thumbnail {
+    width: 350px;
 }
 
 @media (max-width: 976px) {
@@ -160,7 +188,7 @@ input.search-input::placeholder {
         width: 100%;
     }
 
-    .product-list {
+    .panel-card {
         padding: 24px;
         border-radius: 0;
     }

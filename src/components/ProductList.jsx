@@ -5,16 +5,17 @@ import SwitchDisplayButton from "./SwitchDisplayButton";
 import ProductListTable from "./ProductListTable";
 import ProductListCard from "./ProductListCard";
 
-const ProductList = () => {
+const ProductList = ({ api }) => {
     const [isChecked, setIsChecked] = useState("table");
     const [products, setProducts] = useState([]);
 
     useEffect(() => {
         getProducts();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const getProducts = async () => {
-        const response = await axios.get("http://localhost:5000/products");
+        const response = await axios.get(api);
         const data = response.data;
         setProducts(data);
     };
@@ -26,10 +27,10 @@ const ProductList = () => {
 
     return (
         <section id="product" className="container mx-auto">
-            <Link className="btn btn-nice px-4 py-2">
+            <Link to="/add" className="btn btn-nice px-4 py-2">
                 <span>Add Product</span> <i className="bi bi-plus-lg ms-1"></i>
             </Link>
-            <div className="product-list bg-white mt-4">
+            <div className="panel-card bg-white mt-4">
                 <p className="fw-bold fs-4">Products</p>
                 <hr />
                 <div className="row justify-content-end align-items-center mt-4">
