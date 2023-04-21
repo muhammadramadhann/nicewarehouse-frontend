@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const ProductListTable = ({ products }) => {
+const ProductListTable = ({ products, deleteProduct }) => {
     return (
         <>
             <div className="table-responsive">
@@ -44,12 +44,17 @@ const ProductListTable = ({ products }) => {
                                 </td>
                                 <td>
                                     <Link
-                                        to=""
+                                        to={`edit/${product.uuid}`}
                                         className="btn btn-nice me-2 mb-md-0 mb-2"
                                     >
                                         <i className="bi bi-pencil-square"></i>
                                     </Link>
-                                    <Link to="" className="btn btn-nice-dark">
+                                    <Link
+                                        onClick={() =>
+                                            deleteProduct(product.uuid)
+                                        }
+                                        className="btn btn-nice-dark"
+                                    >
                                         <i className="bi bi-trash3-fill"></i>
                                     </Link>
                                 </td>

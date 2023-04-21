@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import axios from "axios";
 import SwitchDisplayButton from "./SwitchDisplayButton";
 import ProductListTable from "./ProductListTable";
@@ -8,21 +8,33 @@ import ProductListCard from "./ProductListCard";
 const ProductList = ({ api }) => {
     const [isChecked, setIsChecked] = useState("table");
     const [products, setProducts] = useState([]);
+    const location = useLocation();
 
     useEffect(() => {
         getProducts();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    const handleChange = (e) => {
+        setIsChecked(e.target.value);
+    };
+
     const getProducts = async () => {
         const response = await axios.get(api);
+        // set data
         const data = response.data;
         setProducts(data);
     };
 
-    const handleChange = (e) => {
-        console.log(e.target.value);
-        setIsChecked(e.target.value);
+    const onDeleteProduct = async (uuid) => {
+        try {
+            if (window.confirm("Are you sure want to delete this product?")) {
+                await axios.delete(`${api}/${uuid}`);
+                getProducts();
+            }
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     return (
@@ -58,11 +70,34 @@ const ProductList = ({ api }) => {
                     </div>
                 </div>
 
+                {location.state !== null ? (
+                    <div
+                        className="alert alert-success alert-dismissible fade show mt-4"
+                        role="alert"
+                    >
+                        {location.state.message}
+                        <button
+                            type="button"
+                            className="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                ) : (
+                    ""
+                )}
+
                 <div id="product-display" className="row mt-4">
                     {isChecked === "card" ? (
-                        <ProductListCard products={products} />
+                        <ProductListCard
+                            products={products}
+                            deleteProduct={onDeleteProduct}
+                        />
                     ) : (
-                        <ProductListTable products={products} />
+                        <ProductListTable
+                            products={products}
+                            deleteProduct={onDeleteProduct}
+                        />
                     )}
                 </div>
             </div>

@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const ProductListCard = ({ products }) => {
+const ProductListCard = ({ products, deleteProduct }) => {
     return (
         <>
             {products.map((product) => (
@@ -49,10 +49,13 @@ const ProductListCard = ({ products }) => {
                             </p>
                         </div>
                         <div className="d-flex align-items-center gap-2 mb-0 p-2 mt-auto">
-                            <Link to="" className="btn btn-nice w-100">
+                            <Link to={`edit/${product.uuid}`} className="btn btn-nice w-100">
                                 <i className="bi bi-pencil-square"></i>
                             </Link>
-                            <Link to="" className="btn btn-nice-dark w-100">
+                            <Link
+                                onClick={() => deleteProduct(product.uuid)}
+                                className="btn btn-nice-dark w-100"
+                            >
                                 <i className="bi bi-trash3-fill"></i>
                             </Link>
                         </div>

@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
-const AddProduct = ({ api }) => {
+const EditProduct = ({ api }) => {
     const [name, setName] = useState("");
     const [stock, setStock] = useState(1);
     const [file, setFile] = useState("");
@@ -11,6 +11,20 @@ const AddProduct = ({ api }) => {
     const [errorStock, setErrorStock] = useState(false);
     const [errorImage, setErrorImage] = useState(false);
     const navigate = useNavigate();
+    const { uuid } = useParams();
+
+    useEffect(() => {
+        getProductById();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const getProductById = async () => {
+        const response = await axios.get(`${api}/${uuid}`);
+        setName(response.data.name);
+        setStock(response.data.stock);
+        setFile(response.data.image);
+        setPreview(response.data.url);
+    };
 
     const validateInput = (name, stock, file) => {
         if (name === "" || stock === "" || file === "") {
@@ -40,7 +54,7 @@ const AddProduct = ({ api }) => {
         }
     };
 
-    const saveProduct = async (e) => {
+    const updateProduct = async (e) => {
         e.preventDefault();
         const formData = new FormData();
         formData.append("image", file);
@@ -49,13 +63,13 @@ const AddProduct = ({ api }) => {
         try {
             const validated = validateInput(name, stock, file);
             if (validated) {
-                await axios.post(api, formData, {
+                await axios.patch(`${api}/${uuid}`, formData, {
                     headers: {
                         "Content-Type": "multipart/form-data",
                     },
                 });
                 navigate("/", {
-                    state: { message: "Product saved succesfully" },
+                    state: { message: "Product updated succesfully" },
                     replace: true,
                 });
             }
@@ -71,7 +85,7 @@ const AddProduct = ({ api }) => {
     };
 
     return (
-        <section id="add-product" className="container mx-auto">
+        <section id="edit-product" className="container mx-auto">
             <div className="text-end">
                 <Link
                     onClick={() => navigate(-1)}
@@ -82,10 +96,10 @@ const AddProduct = ({ api }) => {
                 </Link>
             </div>
             <div className="panel-card bg-white mt-4">
-                <p className="fw-bold fs-4">Add New Product</p>
+                <p className="fw-bold fs-4">Edit Product</p>
                 <hr />
                 <form
-                    onSubmit={saveProduct}
+                    onSubmit={updateProduct}
                     className="row justify-content-between mt-4"
                 >
                     <div className="col-md-6 mt-md-0 mt-4">
@@ -149,7 +163,7 @@ const AddProduct = ({ api }) => {
                                 type="submit"
                                 className="btn btn-nice-dark px-4 py-2"
                             >
-                                Save Product
+                                Update Product
                             </button>
                         </div>
                     </div>
@@ -175,4 +189,4 @@ const AddProduct = ({ api }) => {
     );
 };
 
-export default AddProduct;
+export default EditProduct;
