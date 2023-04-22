@@ -6,6 +6,7 @@ body {
 }
 
 .navbar {
+    box-shadow: none;
     transition: 0.5s;
 }
 
@@ -16,6 +17,7 @@ body {
     left: 0;
     width: 100%;
 
+    box-shadow: 2px 4px 32px #00000022;
     background: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(4.3px);
     -webkit-backdrop-filter: blur(4.3px);

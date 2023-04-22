@@ -8,6 +8,7 @@ import ProductListCard from "./ProductListCard";
 const ProductList = ({ api }) => {
     const [isChecked, setIsChecked] = useState("table");
     const [products, setProducts] = useState([]);
+    const [search, setSearch] = useState("");
     const location = useLocation();
 
     useEffect(() => {
@@ -15,15 +16,14 @@ const ProductList = ({ api }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const handleChange = (e) => {
+    const handleSwitchDisplay = (e) => {
         setIsChecked(e.target.value);
     };
 
     const getProducts = async () => {
         const response = await axios.get(api);
         // set data
-        const data = response.data;
-        setProducts(data);
+        setProducts(response.data);
     };
 
     const onDeleteProduct = async (uuid) => {
@@ -35,6 +35,11 @@ const ProductList = ({ api }) => {
         } catch (error) {
             console.log(error);
         }
+    };
+
+    const onSearchProduct = async (keyword) => {
+        const response = await axios.get(`${api}/?search=${keyword}`);
+        setProducts(response.data);
     };
 
     return (
@@ -49,7 +54,7 @@ const ProductList = ({ api }) => {
                     <div className="col-lg-9 col-sm-6 mt-sm-0 mt-3">
                         <SwitchDisplayButton
                             display={isChecked}
-                            change={handleChange}
+                            change={handleSwitchDisplay}
                         />
                     </div>
                     <div className="col-lg-3 col-sm-6 order-sm-last order-first">
@@ -58,8 +63,11 @@ const ProductList = ({ api }) => {
                                 type="text"
                                 className="form-control search-input shadow-none text-sm"
                                 placeholder="Enter product keyword"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
                             />
                             <button
+                                onClick={() => onSearchProduct(search)}
                                 className="btn btn-nice"
                                 type="button"
                                 id="button-addon2"

@@ -45,7 +45,7 @@ const ProductListTable = ({ products, deleteProduct }) => {
                                 <td>
                                     <Link
                                         to={`edit/${product.uuid}`}
-                                        className="btn btn-nice me-2 mb-md-0 mb-2"
+                                        className="btn btn-nice me-2 mb-lg-0 mb-2"
                                     >
                                         <i className="bi bi-pencil-square"></i>
                                     </Link>
