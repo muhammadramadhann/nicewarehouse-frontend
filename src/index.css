@@ -180,6 +180,16 @@ img.img-thumbnail {
     width: 350px;
 }
 
+button:disabled,
+button:focus:disabled,
+button:hover:disabled,
+button:active:disabled {
+    background: #35858bb5 !important;
+    border-color: #35858bb5 !important;
+    color: #fff !important;
+    cursor: not-allowed;
+}
+
 @media (max-width: 976px) {
     .d-optional {
         display: none;

@@ -1,87 +1,99 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useReducer, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
+const inputReducer = (state, action) => {
+    if (action.type === "USER_INPUT")
+        return { value: action.value, isValid: action.value !== "" };
+    if (action.type === "INPUT_BLUR")
+        return { value: state.value, isValid: state.value !== "" };
+    return { value: "", isValid: false };
+};
+
 const EditProduct = ({ api }) => {
-    const [name, setName] = useState("");
-    const [stock, setStock] = useState(1);
+    const [formIsValid, setFormIsValid] = useState(false);
+    const [nameState, dispatchName] = useReducer(inputReducer, {
+        value: "",
+        isValid: null,
+    });
+    const [stockState, dispatchStock] = useReducer(inputReducer, {
+        value: "",
+        isValid: null,
+    });
     const [file, setFile] = useState("");
     const [preview, setPreview] = useState("");
-    const [errorName, setErrorName] = useState(false);
-    const [errorStock, setErrorStock] = useState(false);
-    const [errorImage, setErrorImage] = useState(false);
+    const [imageIsValid, setImageIsValid] = useState();
     const navigate = useNavigate();
     const { uuid } = useParams();
+
+    const { isValid: nameIsValid } = nameState;
+    const { isValid: stockIsValid } = stockState;
 
     useEffect(() => {
         getProductById();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    useEffect(() => {
+        const identifier = setTimeout(() => {
+            setFormIsValid(nameIsValid && stockIsValid);
+        }, 500);
+
+        return () => {
+            clearTimeout(identifier);
+        };
+    }, [nameIsValid, stockIsValid]);
+
     const getProductById = async () => {
         const response = await axios.get(`${api}/${uuid}`);
-        setName(response.data.name);
-        setStock(response.data.stock);
+        dispatchName({
+            type: "USER_INPUT",
+            value: response.data.name,
+        });
+        dispatchStock({
+            type: "USER_INPUT",
+            value: response.data.stock,
+        });
         setFile(response.data.image);
         setPreview(response.data.url);
     };
 
-    const validateInput = (name, stock, file) => {
-        if (name === "" || stock === "" || file === "") {
-            if (name === "") {
-                setErrorName(true);
-            } else {
-                setErrorName(false);
-            }
-
-            if (stock === "") {
-                setErrorStock(true);
-            } else {
-                setErrorStock(false);
-            }
-
-            if (file === "") {
-                setErrorImage(true);
-            } else {
-                setErrorImage(false);
-            }
-            return false;
-        } else {
-            setErrorName(false);
-            setErrorStock(false);
-            setErrorImage(false);
-            return true;
-        }
-    };
-
     const updateProduct = async (e) => {
         e.preventDefault();
+        if (file === "") {
+            setImageIsValid(false);
+            return;
+        }
         const formData = new FormData();
         formData.append("image", file);
-        formData.append("name", name);
-        formData.append("stock", stock);
+        formData.append("name", nameState.value);
+        formData.append("stock", stockState.value);
         try {
-            const validated = validateInput(name, stock, file);
-            if (validated) {
-                await axios.patch(`${api}/${uuid}`, formData, {
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                    },
-                });
-                navigate("/", {
-                    state: { message: "Product updated succesfully" },
-                    replace: true,
-                });
-            }
+            await axios.patch(`${api}/${uuid}`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+            navigate("/", {
+                state: { message: "Product updated succesfully" },
+                replace: true,
+            });
         } catch (error) {
             console.log(error);
         }
     };
 
     const loadImage = (e) => {
-        const image = e.target.files[0];
-        setFile(image);
-        setPreview(URL.createObjectURL(image));
+        if (e.target.files.length > 0) {
+            const image = e.target.files[0];
+            setImageIsValid(true);
+            setFile(image);
+            setPreview(URL.createObjectURL(image));
+        } else {
+            setImageIsValid(false);
+            setPreview("");
+            return;
+        }
     };
 
     return (
@@ -110,13 +122,25 @@ const EditProduct = ({ api }) => {
                             <input
                                 name="name"
                                 type="text"
-                                className="form-control shadow-none"
+                                className={`form-control shadow-none ${
+                                    nameState.isValid === false
+                                        ? "is-invalid"
+                                        : ""
+                                }`}
                                 placeholder="Enter product name"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
+                                value={nameState.value}
+                                onChange={(event) => {
+                                    dispatchName({
+                                        type: "USER_INPUT",
+                                        value: event.target.value,
+                                    });
+                                }}
+                                onBlur={() => {
+                                    dispatchName({ type: "INPUT_BLUR" });
+                                }}
                             />
-                            {errorName ? (
-                                <div className="error-message text-nice-danger pt-2">
+                            {nameState.isValid === false ? (
+                                <div className="error-message text-nice-danger pt-1">
                                     Product name cannot be empty!
                                 </div>
                             ) : (
@@ -129,13 +153,25 @@ const EditProduct = ({ api }) => {
                                 name="stock"
                                 type="number"
                                 min={1}
-                                className="form-control shadow-none"
+                                className={`form-control shadow-none ${
+                                    stockState.isValid === false
+                                        ? "is-invalid"
+                                        : ""
+                                }`}
                                 placeholder="Enter total stock available"
-                                value={stock}
-                                onChange={(e) => setStock(e.target.value)}
+                                value={stockState.value}
+                                onChange={(event) => {
+                                    dispatchStock({
+                                        type: "USER_INPUT",
+                                        value: event.target.value,
+                                    });
+                                }}
+                                onBlur={() => {
+                                    dispatchStock({ type: "INPUT_BLUR" });
+                                }}
                             />
-                            {errorStock ? (
-                                <div className="error-message text-nice-danger pt-2">
+                            {stockState.isValid === false ? (
+                                <div className="error-message text-nice-danger pt-1">
                                     Product stock cannot be empty!
                                 </div>
                             ) : (
@@ -147,10 +183,14 @@ const EditProduct = ({ api }) => {
                             <input
                                 name="image"
                                 type="file"
-                                className="form-control shadow-none"
+                                className={`form-control shadow-none ${
+                                    imageIsValid !== undefined && !imageIsValid
+                                        ? "is-invalid"
+                                        : ""
+                                }`}
                                 onChange={loadImage}
                             />
-                            {errorImage ? (
+                            {imageIsValid !== undefined && !imageIsValid ? (
                                 <div className="error-message text-nice-danger pt-2">
                                     Product image cannot be empty!
                                 </div>
@@ -162,6 +202,7 @@ const EditProduct = ({ api }) => {
                             <button
                                 type="submit"
                                 className="btn btn-nice-dark px-4 py-2"
+                                disabled={!formIsValid}
                             >
                                 Update Product
                             </button>
